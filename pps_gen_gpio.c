@@ -213,6 +213,13 @@ static int pps_gen_gpio_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, devdata);
 
+	/* No support for GPIO that sleeps (remote) */
+	if (gpiod_cansleep(devdata->pps_gpio)) {
+		dev_err(dev, "PPS GPIO can sleep\n");
+		ret = -EINVAL;
+		goto err_gpio_cansleep;
+	}
+
 	ret = gpiod_direction_output(devdata->pps_gpio, PPS_GPIO_HIGH);
 	if (ret < 0) {
 		dev_err(dev, "Cannot configure PPS GPIO\n");
@@ -227,6 +234,7 @@ static int pps_gen_gpio_probe(struct platform_device *pdev)
 		      HRTIMER_MODE_ABS);
 	return 0;
 
+err_gpio_cansleep:
 err_gpio_dir:
 	devm_gpiod_put(dev, devdata->pps_gpio);
 err_gpio_get:
