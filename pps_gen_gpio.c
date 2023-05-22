@@ -145,27 +145,28 @@ done:
 }
 
 /* Initial calibration of GPIO set instruction time. */
-#define PPS_GEN_CALIBRATE_LOOPS 100
+#define GPIO_NTESTS_SHIFT 7
 static void pps_gen_calibrate(struct pps_gen_gpio_devdata *devdata)
 {
+	struct gpio_desc *pps_gpio = devdata->pps_gpio;
 	int i;
-	long time_acc = 0;
+	long acc = 0;
 
-	for (i = 0; i < PPS_GEN_CALIBRATE_LOOPS; i++) {
-		struct timespec64 ts1, ts2, ts_delta;
+	for (i = 0; i < (1 << GPIO_NTESTS_SHIFT); i++) {
+		struct timespec64 a, b;
 		unsigned long irq_flags;
 
 		local_irq_save(irq_flags);
-		ktime_get_real_ts64(&ts1);
-		gpiod_set_value(devdata->pps_gpio, PPS_GPIO_LOW);
-		ktime_get_real_ts64(&ts2);
+		ktime_get_real_ts64(&a);
+		gpiod_set_value(pps_gpio, PPS_GPIO_LOW);
+		ktime_get_real_ts64(&b);
 		local_irq_restore(irq_flags);
 
-		ts_delta = timespec64_sub(ts2, ts1);
-		time_acc += timespec64_to_ns(&ts_delta);
+		b = timespec64_sub(b, a);
+		acc += timespec64_to_ns(&b);
 	}
 
-	devdata->gpio_instr_time = time_acc / PPS_GEN_CALIBRATE_LOOPS;
+	devdata->gpio_instr_time = acc >> GPIO_NTESTS_SHIFT;
 	pr_info("PPS GPIO set takes %ldns\n", devdata->gpio_instr_time);
 }
 
