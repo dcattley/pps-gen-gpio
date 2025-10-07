@@ -1,0 +1,43 @@
+// Device tree overlay for software GPIO PPS signal generator.
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "brcm,bcm2835";
+
+	fragment@0 {
+		// Configure the gpio pin controller
+		target = <&gpio>;
+		__overlay__ {
+			pps_gen_gpio_pins: pps-gen-gpio-pins@4 {
+				brcm,pins =     <4>;    // GPIO number
+				brcm,function = <1>;    // 0:Input, 1:Output
+				brcm,pull =     <0>;    // 0:None, 1:Down, 2:Up
+			};
+		};
+	};
+
+	fragment@1 {
+		target-path = "/";
+		__overlay__ {
+			pps_gen_gpio: pps-gen-gpio@4 {
+				compatible = "pps-gen-gpio";
+				pinctrl-names = "default";
+				pinctrl-0 = <&pps_gen_gpio_pins>;
+				gpios = <&gpio 4 0>;
+				status = "okay";
+			};
+		};
+	};
+
+	__overrides__ {
+		gpio = <&pps_gen_gpio>,"gpios:4",
+		       <&pps_gen_gpio_pins>,"brcm,pins:0",
+		       /* modify reg values to allow multiple instantiation */
+		       <&pps_gen_gpio>,"reg:0",
+		       <&pps_gen_gpio_pins>,"reg:0";
+
+		assert_falling_edge = <&pps_gen_gpio>,"assert-falling-edge?";
+		pull = <&pps_gen_gpio_pins>,"brcm,pull:0";
+	};
+};
