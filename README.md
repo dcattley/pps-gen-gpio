@@ -33,3 +33,30 @@ Please note that in order to use the module with any other board using the devic
 		gpios                 property in pps-gen node that defines which GPIO pin is used
 
 After modifying the device tree, add the files into drivers/pps/generators and configure the driver to be built as a module. You need to enable PPS support in the kernel.
+
+
+Install with DKMS
+=================
+
+```
+# Install prerequisites
+sudo apt install gcc dkms raspberrypi-kernel-headers  # For Raspberry Pi OS
+# sudo apt install gcc dkms linux-headers-$(uname -r)  # For Ubuntu
+
+# Clone or extract repo
+# cd pps-gen-gpio
+# build with dkms
+
+sudo dkms add .
+sudo dkms build --force pps-gen-gpio -v 0.1
+sudo dkms install --force pps-gen-gpio -v 0.1
+
+## copy over updated one from where dkms installed itself
+#sudo mkdir -p /lib/modules/$(uname -r)/kernel/drivers/pps/generators
+#sudo cp /lib/modules/$(uname -r)/updates/dkms/pps-gen-gpio.ko.xz /lib/modules/$(uname -r)/kernel/drivers/pps/generators/pps-gen-gpio.ko.xz
+#
+#sudo depmod -a
+#sudo update-initramfs -u
+#
+#sudo reboot
+```
