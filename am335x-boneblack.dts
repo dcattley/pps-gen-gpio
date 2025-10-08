@@ -20,7 +20,7 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&pps_gen_pins>;
 		compatible = "pps-gen-gpio";
-		pps-gen-gpio = <&gpio1 19 GPIO_ACTIVE_HIGH>;
+		gpios = <&gpio1 19 GPIO_ACTIVE_HIGH>;
 		default-state = "off";
 	};
 };

@@ -23,13 +23,13 @@ Check the [BBB System Reference Manual](https://github.com/CircuitCo/BeagleBone-
 				pinctrl-names = "default";
 				pinctrl-0 = <&pps_gen_pins>;
 				compatible = "pps-gen-gpio";
-				pps-gen-gpio = <&gpio1 19 GPIO_ACTIVE_HIGH>;
+				gpios = <&gpio1 19 GPIO_ACTIVE_HIGH>;
 				default-state = "off";
 
 Please note that in order to use the module with any other board using the device tree infrastructure, the following matching definitions are required in the device tree:
 
 		pps-gen               node defined for the PPS GPIO
 		pps-gen-gpio          value of ".compatible" property in pps-gen node
-		pps-gen-gpio          property in pps-gen node that defines which GPIO pin is used
+		gpios                 property in pps-gen node that defines which GPIO pin is used
 
 After modifying the device tree, add the files into drivers/pps/generators and configure the driver to be built as a module. You need to enable PPS support in the kernel.
